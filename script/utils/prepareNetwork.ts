@@ -26,6 +26,8 @@ export enum NETWORK {
   XLAYER = 'xlayer-mainnet',
   ZKSYNC_ERA = 'zksync-era',
   ZORA = 'zora-mainnet',
+  JOC_TESTNET = 'joc-testnet',
+  JOC_MAINNET = 'joc',
 }
 
 export enum SUBGRAPH_TYPE {
