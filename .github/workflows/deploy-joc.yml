@@ -1,0 +1,40 @@
+name: Deploy uniswap-v3 joc
+run-name: Deploy uniswap-v3 ${{ inputs.subgraph-type }} subgraph ${{ github.ref_name }} for joc by @${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      subgraph-type:
+        description: "Subgraph type to deploy"
+        required: true
+        type: choice
+        default: "v3"
+        options:
+          - v3
+          - v3-tokens
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.subgraph-type }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  subgraph:
+    name: Subgraph - Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "yarn"
+      - run: yarn install --frozen-lockfile
+      - name: Create .env
+        env:
+          ALCHEMY_DEPLOY_KEY: ${{ secrets.THE_GRAPH_JOC_DEPLOY_KEY }}
+        run: |
+          {
+            echo "ALCHEMY_DEPLOY_KEY=$ALCHEMY_DEPLOY_KEY"
+            echo "ALCHEMY_DEPLOY_URL=https://api.studio.thegraph.com/deploy/"
+            echo "ALCHEMY_IPFS_URL=https://api.thegraph.com/ipfs/"
+          } > .env
+      - name: Build & deploy
+        run: yarn build --network joc --subgraph-type ${{ inputs.subgraph-type }} --deploy
